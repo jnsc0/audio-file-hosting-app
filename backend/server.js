@@ -6,6 +6,7 @@ const User = require("./models/User");
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const audioRoutes = require('./routes/audio');
+require('./middleware/deleteOldFiles.js');
 
 
 

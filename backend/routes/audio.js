@@ -3,6 +3,7 @@ const router = express.Router();
 const Audio = require('../models/Audio');
 const { protect, admin } = require('../middleware/auth');
 const { upload, uploadToGCS } = require('../middleware/audioupload');
+const {deleteFromGCS} = require('../middleware/gcsHelpers.js');
 
 // 📌 Upload Audio File and Meta data
 router.post('/upload', protect, upload.single('audioFile'), async (req, res) => {
@@ -54,8 +55,7 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
-
-// 📌 Update Audio Metadata and Audio File
+//put api
 router.put('/:id', protect, upload.single('audioFile'), async (req, res) => {
   try {
     const audio = await Audio.findById(req.params.id);
@@ -63,20 +63,22 @@ router.put('/:id', protect, upload.single('audioFile'), async (req, res) => {
       return res.status(404).json({ message: 'Audio file not found' });
     }
 
-    // Users can only update their own audio files (Admins can update any)
+    // Users can only update their own files (Admins can update any)
     if (req.user.role !== 'admin' && audio.user.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to update this audio file' });
     }
 
-    // Update metadata fields if provided
-    if (req.body.description) audio.description = req.body.description;
-    if (req.body.category) audio.category = req.body.category;
-
-    // If a new file is uploaded, replace it in Google Cloud Storage
-    if (req.file) {
-      const fileUrl = await uploadToGCS(req.file); // Upload new file to GCS
-      audio.fileUrl = fileUrl;
+    // Delete the old file from GCS if it exists
+    if (audio.fileUrl) {
+      console.log(`Deleting old file from GCS: ${audio.fileUrl}`);
+      await deleteFromGCS(audio.fileUrl); // Delete the old file from GCS
     }
+
+    // Update the audio metadata and upload the new file
+    const newFileUrl = await uploadToGCS(req.file); // Function to upload new file to GCS
+    audio.description = req.body.description || audio.description;
+    audio.category = req.body.category || audio.category;
+    audio.fileUrl = newFileUrl;
 
     await audio.save();
     res.status(200).json({ message: 'Audio file updated successfully', audio });
@@ -85,6 +87,7 @@ router.put('/:id', protect, upload.single('audioFile'), async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 // 📌 Delete an audio file (only owner or admin)
@@ -98,8 +101,7 @@ router.delete('/:id', protect, async (req, res) => {
     }
 
     // Delete from Google Cloud Storage
-    const fileName = audio.fileUrl.split('/').pop();
-    await storage.bucket(process.env.GCS_BUCKET).file(fileName).delete();
+    await deleteFromGCS(audio.fileUrl);
 
     await audio.deleteOne();
     res.json({ message: 'Audio file deleted' });
@@ -107,5 +109,4 @@ router.delete('/:id', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 module.exports = router;
