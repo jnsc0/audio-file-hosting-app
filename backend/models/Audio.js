@@ -7,6 +7,8 @@ const audioSchema = new mongoose.Schema({
   category: { type: String, enum: ['Music', 'Podcast', 'Audiobook', 'Other'], default: 'Other' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Renamed 'userId' to 'user'
   fileUrl: { type: String, required: true }, // Stores Google Cloud Storage URL
+  deletedAt: { type: Date, default: null },
+  oldFileUrl: { type: String },
 }, { timestamps: true }); // Auto-adds createdAt & updatedAt
 
 module.exports = mongoose.model('Audio', audioSchema);
