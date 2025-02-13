@@ -581,6 +581,61 @@ To build and run the project using Docker, follow the steps below.
 3. The frontend will be available at http://localhost:80.
 4. The backend will be available at http://localhost:5000.
 
+---
+## If all fails.. we go back to basic
+
+
+## Frontend:
+
+1. Navigate to the frontend directory:
+
+   ```bash
+   cd frontend
+   ```
+
+4. use node 18:
+
+   ```bash
+   nvm use 18
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Run the frontend in development mode:
+
+   ```bash
+   npm run dev
+   ```
+
+## Backend:
+
+1. Navigate to the backend directory:
+
+   ```bash
+   cd backend
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Run the backend:
+
+   ```bash
+   node server.js
+   ```
+
+
+
+---
+
+
 
 
 
