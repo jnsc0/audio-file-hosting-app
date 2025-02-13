@@ -59,24 +59,37 @@ const AdminUsers = () => {
   };
 
   const handleUpdate = async () => {
-    // Check if password and confirm password match before submitting
-    if (updatedUser.password !== updatedUser.confirmPassword) {
-      setError("Passwords do not match.");
-      return; // Prevent update if passwords don't match
+    // Only check passwords if they are not empty
+    if (updatedUser.password || updatedUser.confirmPassword) {
+      if (updatedUser.password !== updatedUser.confirmPassword) {
+        setError("Passwords do not match.");
+        return; // Prevent update if passwords don't match
+      }
+  
+      if (!updatedUser.confirmPassword) {
+        setError("Please confirm your password.");
+        return; // Prevent update if confirm password is empty
+      }
     }
-
-    if (!updatedUser.confirmPassword) {
-      setError("Please confirm your password.");
-      return; // Prevent update if confirm password is empty
-    }
-
+  
     try {
       const token = localStorage.getItem("authToken");
+      const updatedData = { ...updatedUser };
+  
+      // If password is empty, remove it from the update data
+      if (!updatedUser.password) {
+        delete updatedData.password;
+        delete updatedData.confirmPassword;
+      }
+  
+      // Send the update request
       await axios.put(
         `http://localhost:8080/api/user/${editingUser._id}`,
-        updatedUser,
+        updatedData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+  
+      // Fetch updated users and close the edit modal
       fetchUsers();
       setEditingUser(null);
       setError(""); // Clear the error state after successful update
@@ -84,6 +97,7 @@ const AdminUsers = () => {
       setError("Failed to update user.");
     }
   };
+  
 
   const handleCloseModal = () => {
     setEditingUser(null);

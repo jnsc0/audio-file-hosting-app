@@ -16,9 +16,13 @@ const Navbar = () => {
     localStorage.removeItem("role");
     localStorage.removeItem("userId");
 
-    // Redirect to login page
-    navigate("/");
-  };
+    navigate("/", { replace: true });
+
+    // Prevent back navigation to the previous page
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = function () {
+    window.history.pushState(null, "", window.location.href);
+  };};
 
   return (
     <nav className="bg-indigo-600 text-white p-4">

@@ -1,0 +1,23 @@
+# Ignore node_modules (not needed in the Docker image, since dependencies will be installed inside the image)
+node_modules/
+
+# Ignore .env files (not needed in the image, unless you want to pass env variables)
+.env
+.env.local
+
+# Ignore build directories from the frontend
+/dist
+
+# Ignore any other files that are not needed in the Docker image
+*.log
+*.md
+.git
+.gitignore
+.vscode
+.idea
+
+# Ignore Dockerfiles for the frontend if they are inside the project
+Dockerfile
+
+# Ignore the backend directory if you only want to build the frontend image
+/backend

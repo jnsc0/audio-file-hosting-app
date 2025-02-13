@@ -46,22 +46,35 @@ const UserProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Check if passwords match before submitting
-    if (updatedUser.password !== updatedUser.confirmPassword) {
-      setError("Passwords do not match.");
-      return; // Prevent update if passwords don't match
+  
+    // Only check passwords if they are not empty
+    if (updatedUser.password || updatedUser.confirmPassword) {
+      if (updatedUser.password !== updatedUser.confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+      }
+  
+      if (!updatedUser.confirmPassword) {
+        setError("Please confirm your password.");
+        return;
+      }
     }
-
-    if (!updatedUser.confirmPassword) {
-      setError("Please confirm your password.");
-      return; // Prevent update if confirm password is empty
-    }
-
+  
     try {
+      // Prepare the data for updating
+      const updateData = {
+        username: updatedUser.username,
+        email: updatedUser.email,
+      };
+  
+      // Add password to update data if it's provided
+      if (updatedUser.password) {
+        updateData.password = updatedUser.password;
+      }
+  
       const response = await axios.put(
         `http://localhost:8080/api/user/${userId}`,
-        updatedUser,
+        updateData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUser(response.data);
@@ -71,6 +84,7 @@ const UserProfile = () => {
       setError("Failed to update profile.");
     }
   };
+  
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -183,7 +197,7 @@ const UserProfile = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-600"
               >
-                New Password
+                New Password (leave empty to keep current)
               </label>
               <input
                 type="password"
@@ -211,6 +225,7 @@ const UserProfile = () => {
                 className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
+
 
             <div className="flex space-x-4">
               <button

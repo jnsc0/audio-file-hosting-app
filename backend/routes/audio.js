@@ -3,6 +3,7 @@ const router = express.Router();
 const Audio = require('../models/Audio');
 const { protect, admin } = require('../middleware/auth');
 const { upload, uploadToGCS } = require('../middleware/audioUpload.js');
+const { deleteFromGCS } = require('../middleware/gcsDelete.js');
 
 // 📌 Upload Audio File and Meta data
 router.post('/upload', protect, upload.single('audioFile'), async (req, res) => {
@@ -58,6 +59,7 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
+// PUT API
 router.put('/:id', protect, upload.single('audioFile'), async (req, res) => {
   try {
     const audio = await Audio.findById(req.params.id);
@@ -70,32 +72,42 @@ router.put('/:id', protect, upload.single('audioFile'), async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this audio file' });
     }
 
-    // Soft delete the old file (instead of immediate removal)
-    if (audio.fileUrl) {
-      console.log(`Marking old file for deletion: ${audio.fileUrl}`);
-      audio.oldFileUrl = audio.fileUrl;
-    }
-
-    // Upload the new file to GCS only if there's a new file
-    let newFileUrl = audio.fileUrl; // Keep the existing URL if no new file is uploaded
+    // Only delete the old file from GCS if a new file is uploaded
     if (req.file) {
-      newFileUrl = await uploadToGCS(req.file);
+      if (audio.fileUrl) {
+        try {
+          console.log(`OK BET. Deleting old file from GCS: ${audio.fileUrl}`);
+          await deleteFromGCS(audio.fileUrl); // Delete the old file from GCS
+        } catch (error) {
+          console.error('Error deleting old file from GCS:', error);
+        }
+      }
+
+      // Upload the new file to GCS
+      const newFileUrl = await uploadToGCS(req.file); // Function to upload new file to GCS
+      audio.fileUrl = newFileUrl;
     }
 
-    // Update the existing audio record with new file details
-    audio.description = req.body.description || audio.description;
-    audio.category = req.body.category || audio.category;
-    audio.fileUrl = newFileUrl;
+    // Update metadata fields only if provided
+    if (req.body.description) {
+      audio.description = req.body.description;
+    }
+    if (req.body.category) {
+      audio.category = req.body.category;
+    }
+    if (req.body.title) {
+      audio.title = req.body.title;
+    }
+
 
     await audio.save();
-
     res.status(200).json({ message: 'Audio file updated successfully', audio });
-
   } catch (error) {
     console.error('Error updating audio file:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 
@@ -115,7 +127,7 @@ router.delete('/:id', protect, async (req, res) => {
     await audio.save();
 
     // Return success response without actually deleting the file yet
-    res.json({ message: 'Audio file marked for deletion. It will be deleted permanently after 1 minute.' });
+    res.json({ message: 'Audio file marked for deletion. It will be deleted permanently after 10 minute.' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -131,22 +143,10 @@ router.put('/:id/restore', protect, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    // Case 1: Restore a soft-deleted file
     if (audio.deletedAt) {
       audio.deletedAt = null; // Remove the deletedAt field
       await audio.save();
       return res.json({ message: `Audio file restored. ${audio.oldFileUrl}` });
-    }
-
-    // Case 2: Restore a replaced file
-    if (audio.oldFileUrl && !audio.deletedAt) {
-      // Swap old and current file
-      const tempFileUrl = audio.fileUrl;
-      audio.fileUrl = audio.oldFileUrl;
-      audio.oldFileUrl = tempFileUrl;
-
-      await audio.save();
-      return res.json({ message: `Replaced audio file restored. Current file name : ${audio.fileUrl}` });
     }
 
     res.status(400).json({ message: 'No file to restore.' });
@@ -159,17 +159,17 @@ router.put('/:id/restore', protect, async (req, res) => {
 
 
 
-// 📌 Get all files pending deletion
-router.get('/pending-deletion', protect, admin, async (req, res) => {
-  try {
-    const pendingFiles = await Audio.find({
-      deletedAt: { $ne: null, $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-    });
+// // 📌 Get all files pending deletion
+// router.get('/pending-deletion', protect, admin, async (req, res) => {
+//   try {
+//     const pendingFiles = await Audio.find({
+//       deletedAt: { $ne: null, $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
+//     });
 
-    res.json(pendingFiles);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+//     res.json(pendingFiles);
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
 
 module.exports = router;

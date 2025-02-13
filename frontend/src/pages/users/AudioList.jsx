@@ -67,6 +67,7 @@ const AudioList = () => {
       setMessage("Audio file updated successfully.");
       setIsEditing(false);
       fetchAudioFiles();
+      window.location.reload();
     } catch (err) {
       console.error(err);
       setMessage("Failed to update audio file.");
@@ -88,6 +89,7 @@ const AudioList = () => {
       setMessage("Audio file marked for deletion.");
       setIsConfirmingDelete(false);
       fetchAudioFiles();
+      window.location.reload();
     } catch (err) {
       console.error(err);
       setMessage("Failed to delete audio file.");

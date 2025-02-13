@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AudioUpload = () => {
   const [file, setFile] = useState(null);
@@ -7,6 +8,8 @@ const AudioUpload = () => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -28,6 +31,7 @@ const AudioUpload = () => {
         },
       });
       setMessage("Audio uploaded successfully!");
+      navigate("/audio/list");
     } catch (err) {
       console.error(err);
       setMessage("Failed to upload audio");
@@ -98,7 +102,7 @@ const AudioUpload = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-600 transition duration-300"
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-600 transition duration-300"
             >
               Upload
             </button>

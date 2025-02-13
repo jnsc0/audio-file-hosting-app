@@ -25,9 +25,9 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex flex-col md:flex-row justify-center items-center h-screen p-4 space-y-4 md:space-y-0 md:space-x-4">
       <div
-        className="bg-blue-600 text-white p-6 rounded-lg shadow-lg w-80 cursor-pointer hover:bg-blue-700 transition"
+        className="bg-indigo-600 text-white p-6 rounded-lg shadow-lg w-full md:w-60 h-60 cursor-pointer hover:bg-indigo-700 transition"
         onClick={() => navigate("/admin/users")}
       >
         <h2 className="text-2xl font-bold">User Management</h2>
@@ -36,7 +36,7 @@ const AdminDashboard = () => {
       </div>
 
       <div
-        className="bg-green-600 text-white p-6 rounded-lg shadow-lg w-80 cursor-pointer hover:bg-green-700 transition"
+        className="bg-indigo-600 text-white p-6 rounded-lg shadow-lg w-full md:w-60 h-60 cursor-pointer hover:bg-indigo-700 transition"
         onClick={() => navigate("/admin/audio")}
       >
         <h2 className="text-2xl font-bold">Audio File Management</h2>

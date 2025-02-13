@@ -10,6 +10,8 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AudioUpload from "./pages/AudioUpload";
 import AudioList from "./pages/users/AudioList";
 import AdminAudioFiles from "./pages/admin/AdminAudioFiles";
+import PrivateRoute from "./components/PrivateRoute";
+
 
 const App = () => {
   return (
@@ -19,15 +21,34 @@ const App = () => {
         {/* Public route (login page) */}
         <Route path="/" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        {/* <Route path="/admin-dashboard" element={<AdminDashboard />}/> */}
-        <Route path="/dashboard" element={<Dashboard />}/>
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="admin-dashboard" element={<AdminDashboard/>}/>
-        <Route path="admin/users" element={<AdminUsers/>}/>
-        <Route path="/audio/upload" element={<AudioUpload />} />
-        <Route path="/audio/list" element={<AudioList />} />
-        <Route path="/admin/audio" element={<AdminAudioFiles/>} />
+
+        <Route element={<PrivateRoute requiredRole="admin" />}>
+          <Route path="/admin-dashboard" element={<AdminDashboard/>}/>
+          <Route path="/admin/users" element={<AdminUsers/>}/>
+          <Route path="/admin/audio" element={<AdminAudioFiles/>} />
+        </Route>
+
+        <Route element={<PrivateRoute requiredRole="user" />}>
+          <Route path="/dashboard" element={<Dashboard />}/>
+        </Route>
+
+        <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/audio/upload" element={<AudioUpload />} />
+          <Route path="/audio/list" element={<AudioList />} />
+        </Route>
+
+
+        {/* <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="admin-dashboard" element={<AdminDashboard/>}/>
+          <Route path="admin/users" element={<AdminUsers/>}/>
+          <Route path="/audio/upload" element={<AudioUpload />} />
+          <Route path="/audio/list" element={<AudioList />} />
+          <Route path="/admin/audio" element={<AdminAudioFiles/>} />
+        </Route> */}
+        
 
       </Routes>
     </div>
