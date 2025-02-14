@@ -1,4 +1,12 @@
+# node_modules
+# *.log
+# .git
+# .DS_Store
+
+
 node_modules
-*.log
+dist
 .git
-.DS_Store
+.env
+Dockerfile
+.dockerignore

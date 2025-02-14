@@ -1,20 +1,15 @@
 version: '3.8'
-
 services:
-  frontend:
-    build:
-      context: ./frontend      # Build the frontend from the ./frontend directory
-      dockerfile: Dockerfile   # If you want to use a specific Dockerfile, you can mention it here
-    ports:
-      - "80:80"                # Expose port 80 for the frontend
-    depends_on:
-      - backend                # Wait for backend to be ready
-
   backend:
-    build:
-      context: ./backend       # Build the backend from the ./backend directory
-      dockerfile: Dockerfile   # Backend Dockerfile
+    build: ./backend
     ports:
-      - "5000:5000"            # Expose port 5000 for the backend
-    environment:
-      - NODE_ENV=production    # Optional, depending on your environment variables
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
