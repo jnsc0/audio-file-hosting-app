@@ -579,7 +579,7 @@ To build and run the project using Docker, follow the steps below.
    docker-compose up --build
    
 3. The frontend will be available at http://localhost:80.
-4. The backend will be available at http://localhost:5000.
+4. The backend will be available at http://localhost:8080.
 
 ---
 ## If all fails.. we go back to basic
