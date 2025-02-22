@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Audio = require('../models/Audio');
 const { protect, admin } = require('../middleware/auth');
-const { upload, uploadToGCS } = require('../middleware/audioUpload.js');
+const { upload, uploadToGCS } = require('../middleware/audioupload.js');
 const { deleteFromGCS } = require('../middleware/gcsDelete.js');
 
 // 📌 Upload Audio File and Meta data
