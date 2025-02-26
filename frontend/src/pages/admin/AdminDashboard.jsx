@@ -31,7 +31,6 @@ const AdminDashboard = () => {
         onClick={() => navigate("/admin/users")}
       >
         <h2 className="text-2xl font-bold">User Management</h2>
-        <p className="mt-2">Total Users: {users.length}</p>
         <p className="text-sm mt-2">Click to view and manage users</p>
       </div>
 
